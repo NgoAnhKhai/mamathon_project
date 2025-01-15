@@ -10,8 +10,6 @@ const usersRouter = require("../be/src/routes/users");
 const authRouter = require("../be/src/routes/");
 const petRouter = require("../be/src/routes/pets");
 const walletRouter = require("../be/src/routes/wallet");
-const houseRouter = require("../be/src/routes/house");
-const petRouter = require("../be/src/routes/pet");
 
 
 const cors = require("cors");
