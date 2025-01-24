@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Chat</title>
+  <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .chat-container {
+      width: 80%;
+      margin: auto;
+      margin-top: 50px;
+    }
+    .messages {
+      height: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      overflow-y: scroll;
+      background-color: #f9f9f9;
+      margin-bottom: 20px;
+      padding: 10px;
+    }
+    .message {
+      margin-bottom: 10px;
+    }
+    .message.me {
+      text-align: right;
+    }
+    .message .sender {
+      font-weight: bold;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: calc(100% - 20px);
+    }
+    button {
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>Real-Time Chat</h2>
+    <div class="messages" id="messages"></div>
+    <input type="text" id="content" placeholder="Type your message here...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const socket = io("http://localhost:8081"); // Địa chỉ server WebSocket
+    let walletAddress = "";
+
+    // Nhập địa chỉ ví khi mở chat
+    while (!walletAddress) {
+      walletAddress = prompt("Nhập địa chỉ ví của bạn:");
+    }
+
+    // Gửi địa chỉ ví đến server để đăng ký
+    socket.emit("register", walletAddress);
+
+    // Hiển thị tin nhắn từ server
+    socket.on("receiveMessage", (message) => {
+      const messagesDiv = document.getElementById("messages");
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message" + (message.sender === walletAddress ? " me" : "");
+      messageDiv.innerHTML = `
+        <span class="sender">${message.sender === walletAddress ? "You" : message.sender}</span>: 
+        ${message.content}
+      `;
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Tự động cuộn xuống
+    });
+
+    // Gửi tin nhắn đến server
+    function sendMessage() {
+      const content = document.getElementById("content").value.trim();
+
+      if (!content) {
+        alert("Message cannot be empty!");
+        return;
+      }
+
+      // Gửi tin nhắn đến server với địa chỉ ví đã đăng ký
+      socket.emit("sendMessage", { sender: walletAddress, content });
+      document.getElementById("content").value = ""; // Xóa nội dung ô input sau khi gửi
+    }
+
+    // Thông báo khi kết nối thành công
+    socket.on("connect", () => {
+      console.log("Connected to chat server");
+    });
+
+    // Thông báo khi bị ngắt kết nối
+    socket.on("disconnect", () => {
+      console.log("Disconnected from chat server");
+    });
+  </script>
+</body>
+</html>
