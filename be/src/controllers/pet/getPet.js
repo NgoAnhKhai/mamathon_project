@@ -1,5 +1,5 @@
 const Pet = require('../../models/pet');
-const utilsHelper = require('../../helpers/utilsHelper');
+const utilsHelper = require('../../helpers/utils');
 
 const getPet = async (req, res) => {
     try {
