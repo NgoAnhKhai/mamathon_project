@@ -1,16 +1,6 @@
 require("dotenv").config();
-const { handleSocketConnection } = require("./src/controllers/Socket/socketController");
-const http = require("http");
-const socketIo = require("socket.io");
 const express = require("express");
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server,{
-  cors: {
-    origin: "*", // Cho phép tất cả client kết nối
-  }
-});
-handleSocketConnection(io);
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -20,7 +10,6 @@ const usersRouter = require("../be/src/routes/users");
 const authRouter = require("../be/src/routes/");
 const petRouter = require("../be/src/routes/pets");
 const walletRouter = require("../be/src/routes/wallet");
-const messageRouter = require("../be/src/routes/message");
 
 
 const cors = require("cors");
@@ -45,7 +34,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/wallets", walletRouter);
-app.use("/message", messageRouter);
+app.use("/pets", petRouter);
 
 app.use((req, res, next) => {
   const err = new AppError(404, "Not Found");

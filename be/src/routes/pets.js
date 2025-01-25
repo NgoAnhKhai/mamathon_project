@@ -1,5 +1,5 @@
 var express = require("express");
-const levelUpPet = require("../controllers/Pet/LevelUpPet");
+const levelUpPet = require("../controllers/pet/LevelUpPet");
 const addPet = require("../controllers/Pet/createPet");
 const blobSubmitPet = require("../controllers/MarketPlace/blob/blobSubmitPet");
 const getPet = require('../controllers/pet/getPet');// day ne
@@ -12,10 +12,6 @@ var router = express.Router();
 
 /* GET users listing. */
 router.post("/",validationMiddleware(addPetSchema, "body"),addPet);
-router.post("/:petId", 
-    validationMiddleware(levelUpPetSchemaParams, "params"), // Kiểm tra params
-    validationMiddleware(levelUpPetSchemaBody, "body"), // Kiểm tra body
-    levelUpPet);
 router.post(
     "/submit-blob",
     validationMiddleware(blobSubmitPetSchema, "body"), // Sử dụng validationMiddleware
@@ -23,5 +19,5 @@ router.post(
   );// day ne
 router.get('/', getPet);// day ne
 router.post('/up', postPetUp);// day ne
-
+router.post('/levelUp', levelUpPet);// day ne
 module.exports = router;
