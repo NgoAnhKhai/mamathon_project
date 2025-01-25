@@ -5,7 +5,7 @@ const AvatarStatus = () => {
         <div className="w-24 h-24 bg-emerald-200 rounded-full mx-4 my-2">
           <img
             className="w-24 h-24 rounded-full"
-            src="/src/assets/img/avatar.png"
+            src="/src/assets/img/goat.png"
             alt="Avatar"
           />
         </div>
@@ -16,7 +16,7 @@ const AvatarStatus = () => {
             <p className="ml-2 pt-1">kangourou</p>
           </div>
           <div className="w-fit h-8 bg-teal-200 rounded-xl mt-2 pr-2">
-            <p className="ml-2 pt-1">Laughed / Tired / Away / Starving</p>
+            <p className="ml-2 pt-1">Happy</p>
           </div>
         </div>
   

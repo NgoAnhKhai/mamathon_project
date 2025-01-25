@@ -3,8 +3,13 @@ import Room from "../pages/Room";
 import AvatarStatus from "../components/AvatarStatus";
 import Coin from "../components/Coin";
 import Menu from "../components/Menu";
+import StatusBar from "../components/StatusBar"; // Import StatusBar
 
 const CombinedView = () => {
+  const updateStatus = (status) => {
+    console.log(`Status updated to: ${status}`); // Hàm thay đổi trạng thái
+  };
+
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {/* Giao diện 3D */}
@@ -29,8 +34,10 @@ const CombinedView = () => {
         {/* Menu */}
         <Menu />
       </div>
+
+      {/* Thanh trạng thái phía dưới */}
+      <StatusBar updateStatus={updateStatus} />
     </div>
   );
 };
-
 export default CombinedView;
