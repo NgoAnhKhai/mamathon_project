@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, useGLTF, useAnimations, Html } from '@react-three/drei';
 import * as THREE from 'three';
+import Chest from '../components/Chest.jsx';
 
 // Component RoomModel
 const RoomModel = () => {
@@ -14,7 +15,6 @@ const RoomModel = () => {
         child.material.color.set('#FFB6C1'); // Màu hồng nhạt
       }
     });
-
     scene.scale.set(50, 100, 50); // Tăng kích thước đáng kể
     scene.position.set(0, 40, 0); // Đặt vị trí trung tâm
   }, [scene]);
@@ -23,7 +23,7 @@ const RoomModel = () => {
 };
 
 // Component ChestModel
-const ChestModel = () => {
+const ChestModel = ({ onClick }) => {
   const { scene } = useGLTF('/interface/chest.glb');
 
   useMemo(() => {
@@ -36,31 +36,30 @@ const ChestModel = () => {
     });
   }, [scene]);
 
-  const handlePointerOver = () => {
-    scene.traverse((child) => {
-      if (child.isMesh) {
-        child.material.emissive = new THREE.Color(0xffff00);
-        child.material.emissiveIntensity = 0.05;
-      }
-    });
-  };
-
-  const handlePointerOut = () => {
-    scene.traverse((child) => {
-      if (child.isMesh) {
-        child.material.emissive = new THREE.Color(0x000000);
-        child.material.emissiveIntensity = 0;
-      }
-    });
-  };
-
   return (
-    <group onPointerOver={handlePointerOver} onPointerOut={handlePointerOut}>
+    <group
+      onPointerOver={() => {
+        scene.traverse((child) => {
+          if (child.isMesh) {
+            child.material.emissive = new THREE.Color(0xffff00);
+            child.material.emissiveIntensity = 0.05;
+          }
+        });
+      }}
+      onPointerOut={() => {
+        scene.traverse((child) => {
+          if (child.isMesh) {
+            child.material.emissive = new THREE.Color(0x000000);
+            child.material.emissiveIntensity = 0;
+          }
+        });
+      }}
+      onClick={onClick} // Handle click event
+    >
       <primitive object={scene} position={[-38, -10, -35]} scale={[8, 8, 8]} />
     </group>
   );
 };
-
 // Component SleepModel
 const SleepModel = () => {
   const { scene } = useGLTF('/interface/Sleep.glb');
@@ -206,52 +205,56 @@ const FoodBowl = () => {
     </>
   );
 };
-
-// Component PetModel
-const PetModel = ({ targetPosition, isVisible, setShowPet }) => {
+const PetModel = ({ targetPosition, isVisible }) => {
   const { scene, animations } = useGLTF('/interface/goatpet.glb');
   const { actions } = useAnimations(animations, scene);
 
   const position = useRef(new THREE.Vector3(-4, -13, 4));
-  const intermediateTarget = useRef(null);
   const isMoving = useRef(false);
   const threshold = 1;
   const maxSpeed = 0.1;
+  const currentTarget = useRef(null);
 
   useMemo(() => {
     scene.rotation.y = Math.PI;
   }, [scene]);
 
-  useFrame(() => {
-    if (!isVisible) return;
-
-    if (targetPosition && !intermediateTarget.current) {
-      intermediateTarget.current = targetPosition.clone();
+  useEffect(() => {
+    if (targetPosition) {
+      if (isMoving.current) {
+        currentTarget.current = targetPosition.clone();
+        const direction = new THREE.Vector3()
+          .subVectors(currentTarget.current, position.current)
+          .normalize();
+        const angle = Math.atan2(direction.x, direction.z);
+        scene.rotation.y = angle;
+      } else {
+        currentTarget.current = targetPosition.clone();
+      }
     }
+  }, [targetPosition]);
 
-    if (!intermediateTarget.current) return;
+  useFrame(() => {
+    if (!isVisible || !currentTarget.current) return;
 
-    const distance = position.current.distanceTo(intermediateTarget.current);
+    const distance = position.current.distanceTo(currentTarget.current);
 
     if (distance > threshold) {
       const step = Math.min(distance, maxSpeed);
       const direction = new THREE.Vector3()
-        .subVectors(intermediateTarget.current, position.current)
+        .subVectors(currentTarget.current, position.current)
         .normalize();
-
+      
       position.current.add(direction.multiplyScalar(step));
-
-      const angle = Math.atan2(direction.x, direction.z);
-      scene.rotation.y = angle;
+      scene.rotation.y = Math.atan2(direction.x, direction.z);
 
       if (!isMoving.current) {
         actions[Object.keys(actions)[0]]?.fadeIn(0.2).play();
         isMoving.current = true;
       }
     } else {
-      position.current.copy(intermediateTarget.current);
-      intermediateTarget.current = targetPosition;
-
+      position.current.copy(currentTarget.current);
+      currentTarget.current = null;
       if (isMoving.current) {
         actions[Object.keys(actions)[0]]?.fadeOut(0.2).stop();
         isMoving.current = false;
@@ -277,38 +280,39 @@ const Plane = ({ onClick }) => {
     </mesh>
   );
 };
-
 // Component Room
 const Room = () => {
   const [targetPosition, setTargetPosition] = useState(null);
   const [showPet, setShowPet] = useState(true);
-
+  const [isChestOpen, setIsChestOpen] = useState(false);
   const handlePlaneClick = (position) => {
     setShowPet(true);
     setTargetPosition(position);
   };
 
   return (
-    <Canvas style={{ width: '100vw', height: '100vh' }}>
-      <PerspectiveCamera makeDefault position={[24, 12, 24]} fov={60} />
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[10, 20, 10]} intensity={1} />
-      <OrbitControls enableZoom={true} />
-      <RoomModel />
-      <ChestModel />
-      <SleepModel />
-      <BathModel />
-      <FoodBowl />
-      <Plane onClick={handlePlaneClick} />
-      {showPet && (
-        <PetModel
-          targetPosition={targetPosition}
-          isVisible={showPet}
-          setShowPet={setShowPet}
-        />
-      )}
-    </Canvas>
+    <>
+      <Canvas style={{ width: '100vw', height: '100vh' }}>
+        <PerspectiveCamera makeDefault position={[24, 12, 24]} fov={60} />
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[10, 20, 10]} intensity={1} />
+        <OrbitControls enableZoom={true} />
+        <RoomModel />
+        <ChestModel onClick={() => setIsChestOpen(true)} />
+        <SleepModel onClick={() => setShowPet(true)} />
+        <BathModel />
+        <FoodBowl />
+        <Plane onClick={handlePlaneClick} />
+        {showPet && (
+          <PetModel
+            targetPosition={targetPosition}
+            isVisible={showPet}
+            setShowPet={setShowPet}
+          />
+        )}
+      </Canvas>
+      {isChestOpen && <Chest closeChest={() => setIsChestOpen(false)} />}
+    </>
   );
 };
-
 export default Room;

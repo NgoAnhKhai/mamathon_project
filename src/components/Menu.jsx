@@ -87,26 +87,28 @@ const Menu = () => {
 const LuckySpin = ({ closeSpin }) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [spinStyle, setSpinStyle] = useState({});
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedPrize, setSelectedPrize] = useState(null);
+  const [popupVisible, setPopupVisible] = useState(false);
 
-  // Danh sách phần thưởng
-  const items = [
-    { id: 1, name: "E-Voucher 10K", color: "#FF0000" },
-    { id: 2, name: "E-Voucher 20K", color: "#FFFF00" },
-    { id: 3, name: "Mất Lượt", color: "#FF5733" },
-    { id: 4, name: "Máy Trộn KitchenAid", color: "#FFC300" },
-    { id: 5, name: "Tủ Lạnh Mini", color: "#33FF57" },
-    { id: 6, name: "Mất Lượt", color: "#33C3FF" },
-    { id: 7, name: "Đồ Ăn Pet", color: "#FF33FF" },
-    { id: 8, name: "Bộ Đồ Sơ Mi", color: "#C70039" },
+  const prizes = [
+    { id: 1, name: "100 Coins", color: "#db7093" },
+    { id: 2, name: "1 Coin", color: "#20b2aa" },
+    { id: 3, name: "50 Coins", color: "#d63e92" },
+    { id: 4, name: "Try Again", color: "#daa520" },
+    { id: 5, name: "1000 Coins", color: "#ff34f0" },
+    { id: 6, name: "10 Coins", color: "#ff7f50" },
+    { id: 7, name: "5 Coins", color: "#3cb371" },
+    { id: 8, name: "20 Coins", color: "#4169e1" },
   ];
 
   const startSpin = () => {
-    setIsSpinning(true);
-    setSelectedItem(null);
+    if (isSpinning) return;
 
-    const randomIndex = Math.floor(Math.random() * items.length);
-    const randomDegree = 360 * 5 + (360 / items.length) * randomIndex;
+    setIsSpinning(true);
+    setSelectedPrize(null);
+
+    const randomIndex = Math.floor(Math.random() * prizes.length);
+    const randomDegree = 360 * 5 + (360 / prizes.length) * randomIndex;
 
     setSpinStyle({
       transform: `rotate(${randomDegree}deg)`,
@@ -115,7 +117,8 @@ const LuckySpin = ({ closeSpin }) => {
 
     setTimeout(() => {
       setIsSpinning(false);
-      setSelectedItem(items[randomIndex]);
+      setSelectedPrize(prizes[randomIndex]);
+      setPopupVisible(true);
     }, 4000);
   };
 
@@ -124,26 +127,20 @@ const LuckySpin = ({ closeSpin }) => {
       <div className="w-3/5 bg-white rounded-xl shadow-lg p-6">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold text-gray-800">🎡 Lucky Spin</h1>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700"
-            onClick={closeSpin}
-          >
+          <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700" onClick={closeSpin}>
             ❌ Close
           </button>
         </div>
 
-        {/* Vòng quay */}
+        {/* Spin Wheel */}
         <div className="relative w-80 h-80 mx-auto">
-          <div
-            className="absolute w-full h-full rounded-full border-4 border-gray-300 shadow-lg"
-            style={spinStyle}
-          >
-            {items.map((item, index) => (
+          <div className="absolute w-full h-full rounded-full border-4 border-gray-300 shadow-lg" style={spinStyle}>
+            {prizes.map((item, index) => (
               <div
                 key={item.id}
                 className="absolute w-full h-full"
                 style={{
-                  transform: `rotate(${(360 / items.length) * index}deg)`,
+                  transform: `rotate(${(360 / prizes.length) * index}deg)`,
                   clipPath: "polygon(50% 50%, 100% 0, 0 0)",
                   backgroundColor: item.color,
                 }}
@@ -151,42 +148,44 @@ const LuckySpin = ({ closeSpin }) => {
                 <div
                   className="absolute w-full h-full flex justify-center items-center text-center"
                   style={{
-                    transform: `rotate(-${(360 / items.length) * index}deg)`,
+                    transform: `rotate(-${(360 / prizes.length) * index}deg)`,
                   }}
                 >
-                  <span className="text-xs font-bold text-white">
-                    {item.name}
-                  </span>
+                  <span className="text-xs font-bold text-white">{item.name}</span>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Kim chỉ vòng quay */}
+          {/* Spin Pointer */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 bg-red-600 shadow-lg rounded-full"></div>
         </div>
 
-        {/* Nút bắt đầu */}
+        {/* Spin Button */}
         <button
-          className={`mt-6 px-6 py-3 text-lg text-white rounded-lg ${
-            isSpinning ? "bg-gray-500" : "bg-green-500 hover:bg-green-700"
-          }`}
+          className={`mt-6 px-6 py-3 text-lg text-white rounded-lg ${isSpinning ? "bg-gray-500" : "bg-green-500 hover:bg-green-700"}`}
           onClick={startSpin}
           disabled={isSpinning}
         >
           {isSpinning ? "Spinning..." : "Start Spin"}
         </button>
-
-        {/* Hiển thị phần thưởng */}
-        {selectedItem && (
-          <div className="mt-6 text-center">
-            <h2 className="text-xl font-bold text-gray-800">🎉 You won!</h2>
-            <div className="flex flex-col items-center mt-2">
-              <p className="text-lg font-semibold mt-2">{selectedItem.name}</p>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Popup Message */}
+      {popupVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-2xl font-bold text-gray-800">🎉 Congratulations!</h2>
+            <p className="mt-2 text-lg">{selectedPrize.name}</p>
+            <button
+              className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+              onClick={() => setPopupVisible(false)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
