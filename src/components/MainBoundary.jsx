@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { FaSmile, FaBed, FaUtensils, FaMoon } from "react-icons/fa";  // Importing icons from react-icons
-import Backpack from "./Backpack";  // Make sure this is correctly imported
+import { FaSmile, FaBed, FaUtensils, FaMoon } from "react-icons/fa";
+import Backpack from "./Backpack"; 
 
 const MainBoundary = () => {
   const [isBackpackOpen, setBackpackOpen] = useState(false);

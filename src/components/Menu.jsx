@@ -1,5 +1,8 @@
 import { useState } from "react";
 import Backpack from "./Backpack";
+import StoreUser from "./StoreUser";
+import Exchange from "./Exchange";
+import { FaStore, FaExchangeAlt } from "react-icons/fa";
 
 const Menu = () => {
   const [isBackpackOpen, setBackpackOpen] = useState(false);
@@ -23,7 +26,6 @@ const Menu = () => {
 
   return (
     <div className="flex flex-col ml-4 mt-14 space-y-1">
-      {/* Store */}
       <div
         className="flex flex-col py-2 w-fit hover:cursor-pointer"
         onClick={openStore}
@@ -31,8 +33,6 @@ const Menu = () => {
         <img className="w-11 h-11" src="/src/assets/img/store.png" alt="Store" />
         <span>Store</span>
       </div>
-
-      {/* Backpack */}
       <div
         className="flex flex-col py-2 w-fit hover:cursor-pointer"
         onClick={openBackpack}
@@ -44,8 +44,6 @@ const Menu = () => {
         />
         <span>Backpack</span>
       </div>
-
-      {/* Missions */}
       <div
         className="flex flex-col py-2 w-fit hover:cursor-pointer"
         onClick={openMission}
@@ -57,8 +55,6 @@ const Menu = () => {
         />
         <span>Missions</span>
       </div>
-
-      {/* Lucky Spin */}
       <div className="flex flex-col py-2 w-fit hover:cursor-pointer" onClick={openSpin}>
         <img
           className="w-11 h-11"
@@ -67,8 +63,6 @@ const Menu = () => {
         />
         <span>Good luck !!!!</span>
       </div>
-
-      {/* Backpack Overlay */}
       {isBackpackOpen && (
         <Backpack closeBackpack={closeBackpack} items={items} />
       )}
@@ -251,47 +245,77 @@ const Missions = ({ closeMission }) => {
 };
 
 const Store = ({ closeStore }) => {
-  const items = [
-    { id: 1, name: "Goat Feed", price: 5, img: "/src/assets/img/goat_feed.png" },
-    { id: 2, name: "Chew Toy", price: 10, img: "/src/assets/img/chew_toy.jpg" },
-    { id: 3, name: "Collar", price: 8, img: "/src/assets/img/collar.jpg" },
+  const [isStoreUserOpen, setStoreUserOpen] = useState(false);
+  const [isExchangeOpen, setExchangeOpen] = useState(false); // State to open Exchange
+
+  const itemsForUsers = [
+    { id: 1, name: "Goat Feed", price: 5, image: "/src/assets/img/goat_feed.png", status: "Available" },
+    { id: 2, name: "Chew Toy", price: 10, image: "/src/assets/img/chew_toy.jpg", status: "Available" },
+    { id: 3, name: "Collar", price: 8, image: "/src/assets/img/collar.jpg", status: "Available" },
+  ];
+
+  const marketplaceItems = [
+    { id: 4, name: "Dog Food", price: 15, image: "/src/assets/img/dog_food.png", status: "Sold Successfully" },
+    { id: 5, name: "Cat Toy", price: 12, image: "/src/assets/img/cat_toy.jpg", status: "On Sale" },
   ];
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-3/5 h-3/5 bg-white rounded-xl shadow-lg p-6">
+      <div className="w-3/5 h-auto bg-white rounded-xl shadow-lg p-6 relative">
+        
+        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">🐐 Pet Store</h1>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700"
-            onClick={closeStore}
-          >
+          <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition" onClick={closeStore}>
             ❌ Close
           </button>
         </div>
 
+        {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="p-6 border rounded-lg shadow-lg hover:shadow-xl transition flex flex-col items-center"
-            >
-              <img
-                src={item.img}
-                alt={item.name}
-                className="w-40 h-40 object-cover rounded-lg"
-              />
+          {itemsForUsers.map((item) => (
+            <div key={item.id} className="p-6 border rounded-lg shadow-lg hover:shadow-xl transition flex flex-col items-center">
+              <img src={item.image} alt={item.name} className="w-40 h-40 object-cover rounded-lg" />
               <h3 className="text-2xl font-semibold mt-3">{item.name}</h3>
               <p className="text-gray-700 text-lg">{item.price} Coins</p>
-              <button className="mt-4 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-700 text-lg">
+              <button className="mt-4 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-700 text-lg transition">
                 Buy
               </button>
             </div>
           ))}
         </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col md:flex-row justify-center gap-4 mt-6">
+          
+          {/* Store User Button */}
+          <button
+            className="w-full md:w-1/2 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold rounded-lg shadow-md flex items-center justify-center gap-2 hover:scale-105 transition"
+            onClick={() => setStoreUserOpen(true)}
+          >
+            <FaStore className="text-xl" />
+            Open Store User
+          </button>
+
+          {/* Exchange Button */}
+          <button
+            className="w-full md:w-1/2 px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-700 text-white font-bold rounded-lg shadow-md flex items-center justify-center gap-2 hover:scale-105 transition"
+            onClick={() => setExchangeOpen(true)}
+          >
+            <FaExchangeAlt className="text-xl" />
+            Open Exchange
+          </button>
+        </div>
       </div>
+
+      {/* Show StoreUser when button clicked */}
+      {isStoreUserOpen && (
+        <StoreUser closeStore={() => setStoreUserOpen(false)} itemsForUsers={itemsForUsers} marketplaceItems={marketplaceItems} />
+      )}
+
+      {/* Show Exchange when button clicked */}
+      {isExchangeOpen && <Exchange closeExchange={() => setExchangeOpen(false)} />}
     </div>
   );
 };
-
 export default Menu;

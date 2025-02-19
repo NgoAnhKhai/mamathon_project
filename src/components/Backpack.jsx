@@ -1,7 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
-const Backpack = ({ closeBackpack, items }) => {
+const Backpack = ({ closeBackpack, transferToChest }) => {
+  const [items, setItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  useEffect(() => {
+    fetch("/data.json")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.backpack) {
+          setItems(data.backpack);
+        }
+      })
+      .catch((error) => console.error("Error loading backpack data:", error));
+  }, []);
+
+  const moveItemToChest = () => {
+    if (selectedItem) {
+      transferToChest(selectedItem);
+      setItems((prevItems) => prevItems.filter((i) => i.name !== selectedItem.name));
+      setSelectedItem(null);
+    }
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative w-11/12 sm:w-3/4 lg:w-1/2 bg-white rounded-xl p-6 shadow-lg">
@@ -9,18 +31,6 @@ const Backpack = ({ closeBackpack, items }) => {
           Backpack
         </h1>
         <ul className="flex justify-center pb-4">
-          <li className="w-24 h-10 mx-2 rounded-3xl bg-blue-500 text-white hover:bg-blue-400 cursor-pointer flex items-center justify-center">
-            All Items
-          </li>
-          <li className="w-24 h-10 mx-2 rounded-3xl bg-blue-500 text-white hover:bg-blue-400 cursor-pointer flex items-center justify-center">
-            Shoes
-          </li>
-          <li className="w-24 h-10 mx-2 rounded-3xl bg-blue-500 text-white hover:bg-blue-400 cursor-pointer flex items-center justify-center">
-            Clothes
-          </li>
-          <li className="w-24 h-10 mx-2 rounded-3xl bg-blue-500 text-white hover:bg-blue-400 cursor-pointer flex items-center justify-center">
-            Pants
-          </li>
           <li className="absolute top-2 right-2 hover:opacity-80 cursor-pointer">
             <img
               className="w-8 h-8"
@@ -30,37 +40,55 @@ const Backpack = ({ closeBackpack, items }) => {
             />
           </li>
         </ul>
-        
-        {/* Items grid */}
         <div>
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 px-2">
-            {items.map((item, index) => (
-              <li
-                key={index}
-                className="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-lg shadow-md transform transition-transform duration-200 hover:scale-110 hover:bg-gray-200"
-              >
-                <p className="text-gray-800">{item}</p>
-              </li>
-            ))}
+            {items.length > 0 ? (
+              items.map((item, index) => (
+                <li
+                  key={index}
+                  className="w-24 h-24 bg-gray-100 flex flex-col items-center justify-center rounded-lg shadow-md transform transition-transform duration-200 hover:scale-110 hover:bg-gray-200 p-2 cursor-pointer"
+                  onClick={() => setSelectedItem(item)}
+                >
+                  <img src={item.image} alt={item.name} className="w-12 h-12 mb-1" />
+                  <p className="text-gray-800 text-sm font-semibold text-center">{item.name}</p>
+                  <p className="text-gray-600 text-xs">x{item.quantity}</p>
+                </li>
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-500">No items available</p>
+            )}
           </ul>
         </div>
-        
-        {/* Navigation button */}
-        <div className="absolute rounded-full bg-blue-50 right-4 bottom-4 p-2 hover:cursor-pointer shadow-lg">
-          <img
-            className="w-5 h-5"
-            src="/src/assets/img/next_arrow.png"
-            alt="Next"
-          />
-        </div>
+        {selectedItem && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg text-center w-80">
+              <h2 className="text-lg font-bold mb-2">{selectedItem.name}</h2>
+              <img src={selectedItem.image} alt={selectedItem.name} className="w-16 h-16 mx-auto mb-2" />
+              <p className="text-gray-700 mb-2">{selectedItem.details}</p>
+              <p className="text-gray-600 text-sm">Quantity: {selectedItem.quantity}</p>
+              <button
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-400"
+                onClick={moveItemToChest}
+              >
+                Move to Chest
+              </button>
+              <button
+                className="mt-4 ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-400"
+                onClick={() => setSelectedItem(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
-// Define PropTypes
+
 Backpack.propTypes = {
-  closeBackpack: PropTypes.func.isRequired, // closeBackpack must be a function
-  items: PropTypes.arrayOf(PropTypes.string).isRequired, // items should be an array of strings
+  closeBackpack: PropTypes.func.isRequired,
+  transferToChest: PropTypes.func.isRequired,
 };
 
 export default Backpack;

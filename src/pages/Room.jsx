@@ -3,29 +3,22 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, useGLTF, useAnimations, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import Chest from '../components/Chest.jsx';
-
-// Component RoomModel
 const RoomModel = () => {
   const { scene } = useGLTF('/interface/room.glb');
-
   useMemo(() => {
     scene.traverse((child) => {
       if (child.isMesh) {
         child.material = child.material.clone();
-        child.material.color.set('#FFB6C1'); // Màu hồng nhạt
+        child.material.color.set('#FFB6C1');
       }
     });
-    scene.scale.set(50, 100, 50); // Tăng kích thước đáng kể
-    scene.position.set(0, 40, 0); // Đặt vị trí trung tâm
+    scene.scale.set(50, 100, 50); 
+    scene.position.set(0, 40, 0);
   }, [scene]);
-
   return <primitive object={scene} />;
 };
-
-// Component ChestModel
 const ChestModel = ({ onClick }) => {
   const { scene } = useGLTF('/interface/chest.glb');
-
   useMemo(() => {
     scene.traverse((child) => {
       if (child.isMesh) {
@@ -35,7 +28,6 @@ const ChestModel = ({ onClick }) => {
       }
     });
   }, [scene]);
-
   return (
     <group
       onPointerOver={() => {
@@ -54,16 +46,14 @@ const ChestModel = ({ onClick }) => {
           }
         });
       }}
-      onClick={onClick} // Handle click event
+      onClick={onClick}
     >
       <primitive object={scene} position={[-38, -10, -35]} scale={[8, 8, 8]} />
     </group>
   );
 };
-// Component SleepModel
 const SleepModel = () => {
   const { scene } = useGLTF('/interface/Sleep.glb');
-
   useMemo(() => {
     scene.traverse((child) => {
       if (child.isMesh) {
@@ -72,7 +62,7 @@ const SleepModel = () => {
         child.material.emissiveIntensity = 0;
       }
     });
-    scene.rotation.y = Math.PI / 2; // Xoay 90 độ quanh trục Y
+    scene.rotation.y = Math.PI / 2;
   }, [scene]);
   const handlePointerOver = () => {
     scene.traverse((child) => {
@@ -82,7 +72,6 @@ const SleepModel = () => {
       }
     });
   };
-
   const handlePointerOut = () => {
     scene.traverse((child) => {
       if (child.isMesh) {
@@ -91,15 +80,12 @@ const SleepModel = () => {
       }
     });
   };
-
   return (
     <group onPointerOver={handlePointerOver} onPointerOut={handlePointerOut}>
       <primitive object={scene} scale={[10, 10, 10]} position={[-38, -8, 3]} />
     </group>
   );
 };
-
-// Component BathModel
 const BathModel = () => {
   const { scene } = useGLTF('/interface/bath.glb');
   useMemo(() => {
@@ -119,7 +105,6 @@ const BathModel = () => {
       }
     });
   };
-
   const handlePointerOut = () => {
     scene.traverse((child) => {
       if (child.isMesh) {
@@ -128,37 +113,29 @@ const BathModel = () => {
       }
     });
   };
-
   return (
     <group onPointerOver={handlePointerOver} onPointerOut={handlePointerOut}>
       <primitive object={scene} scale={[10, 10, 10]} position={[-5, -13, -33]} />
     </group>
   );
 };
-
-// Component FoodBowl
 const FoodBowl = () => {
   const foodBowlRef = useRef();
   const [showOptions, setShowOptions] = useState(false);
   const [hunger, setHunger] = useState(100);
-
   useEffect(() => {
     const hungerInterval = setInterval(() => {
       setHunger((prev) => Math.max(prev - 1, 0));
     }, 3000);
-
     return () => clearInterval(hungerInterval);
   }, []);
-
   const feedGoat = () => {
     setHunger((prev) => Math.min(prev + 20, 100));
   };
-
   const handleClick = (e) => {
     e.stopPropagation();
     setShowOptions((prev) => !prev);
   };
-
   return (
     <>
       <mesh
@@ -208,17 +185,14 @@ const FoodBowl = () => {
 const PetModel = ({ targetPosition, isVisible }) => {
   const { scene, animations } = useGLTF('/interface/goatpet.glb');
   const { actions } = useAnimations(animations, scene);
-
   const position = useRef(new THREE.Vector3(-4, -13, 4));
   const isMoving = useRef(false);
   const threshold = 1;
   const maxSpeed = 0.1;
   const currentTarget = useRef(null);
-
   useMemo(() => {
     scene.rotation.y = Math.PI;
   }, [scene]);
-
   useEffect(() => {
     if (targetPosition) {
       if (isMoving.current) {
@@ -233,7 +207,6 @@ const PetModel = ({ targetPosition, isVisible }) => {
       }
     }
   }, [targetPosition]);
-
   useFrame(() => {
     if (!isVisible || !currentTarget.current) return;
 
@@ -260,14 +233,10 @@ const PetModel = ({ targetPosition, isVisible }) => {
         isMoving.current = false;
       }
     }
-
     scene.position.copy(position.current);
   });
-
   return isVisible ? <primitive object={scene} scale={[10, 10, 10]} /> : null;
 };
-
-// Component Plane
 const Plane = ({ onClick }) => {
   return (
     <mesh
@@ -280,7 +249,6 @@ const Plane = ({ onClick }) => {
     </mesh>
   );
 };
-// Component Room
 const Room = () => {
   const [targetPosition, setTargetPosition] = useState(null);
   const [showPet, setShowPet] = useState(true);
@@ -289,14 +257,19 @@ const Room = () => {
     setShowPet(true);
     setTargetPosition(position);
   };
-
   return (
     <>
       <Canvas style={{ width: '100vw', height: '100vh' }}>
         <PerspectiveCamera makeDefault position={[24, 12, 24]} fov={60} />
         <ambientLight intensity={0.7} />
         <directionalLight position={[10, 20, 10]} intensity={1} />
-        <OrbitControls enableZoom={true} />
+        <OrbitControls 
+          enableRotate={false}  
+          minZoom={2}           
+          maxZoom={2}           
+          minDistance={10}      
+          maxDistance={30}   
+        />
         <RoomModel />
         <ChestModel onClick={() => setIsChestOpen(true)} />
         <SleepModel onClick={() => setShowPet(true)} />

@@ -1,6 +1,5 @@
 import React from "react";
 import { FaSmile, FaUtensils, FaBed, FaMoon } from "react-icons/fa";
-
 const StatusBar = ({ updateStatus }) => {
   return (
     <div
@@ -17,7 +16,6 @@ const StatusBar = ({ updateStatus }) => {
         zIndex: 20,
       }}
     >
-      {/* Happy */}
       <div
         onClick={() => updateStatus("Happy")}
         style={{
@@ -30,8 +28,6 @@ const StatusBar = ({ updateStatus }) => {
         <FaSmile style={{ fontSize: "1.5rem", color: "#FFD700" }} />
         <span style={{ color: "#FFF", fontSize: "0.75rem" }}>Happy</span>
       </div>
-
-      {/* Hungry */}
       <div
         onClick={() => updateStatus("Hungry")}
         style={{
@@ -44,8 +40,6 @@ const StatusBar = ({ updateStatus }) => {
         <FaUtensils style={{ fontSize: "1.5rem", color: "#32CD32" }} />
         <span style={{ color: "#FFF", fontSize: "0.75rem" }}>Hungry</span>
       </div>
-
-      {/* Tired */}
       <div
         onClick={() => updateStatus("Tired")}
         style={{
@@ -58,8 +52,6 @@ const StatusBar = ({ updateStatus }) => {
         <FaBed style={{ fontSize: "1.5rem", color: "#1E90FF" }} />
         <span style={{ color: "#FFF", fontSize: "0.75rem" }}>Tired</span>
       </div>
-
-      {/* Resting */}
       <div
         onClick={() => updateStatus("Resting")}
         style={{
